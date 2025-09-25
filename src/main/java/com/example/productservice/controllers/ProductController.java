@@ -37,7 +37,7 @@ public class ProductController {
        return productService.getProductById(id);
     }
 
-    @GetMapping
+    @GetMapping()
     public ResponseEntity<List<GenericProductdto>> getAllProducts() {
 
         return productService.getAllProducts();

@@ -62,26 +62,6 @@ public class FakeStoreProductService implements ProductService{
     @Override
     public ResponseEntity<List<GenericProductdto>> getAllProducts() {
 
-        UserDto userDto = new UserDto();
-                //tokenValidator.validateToken(token);
-
-        // If the token is invalid, return 403 Forbidden
-        if (userDto == null) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        }
-
-        // Check if the user is an admin
-        boolean isAdmin = false;
-        for (Role role : userDto.getRoles()) {
-            if (role.getName().equals("ADMIN")) {
-                isAdmin = true;
-                break;
-            }
-        }
-
-        // If the user is not an admin, return 401 Unauthorized
-        if (!isAdmin) return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-
         // Fetch all products
         List<FakeStoreProductdto> fakeStoreProductDtos = fakeStoreClientAdapter.getAllProducts();
 
