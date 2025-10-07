@@ -12,6 +12,7 @@ import com.example.productservice.security.UserDto;
 import com.example.productservice.thirdpartyclient.FakeStoreClient.FakeStoreClientAdapter;
 import com.sun.jdi.request.InvalidRequestStateException;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -30,18 +31,23 @@ public class FakeStoreProductService implements ProductService{
     private FakeStoreClientAdapter fakeStoreClientAdapter;
     private TokenValidator tokenValidator;
 
-    public FakeStoreProductService(FakeStoreClientAdapter fakeStoreClientAdapter,TokenValidator tokenValidator) {
+    private RedisTemplate<String,FakeStoreProductdto> redisTemplate;
+
+    public FakeStoreProductService(FakeStoreClientAdapter fakeStoreClientAdapter,TokenValidator tokenValidator,RedisTemplate redisTemplate) {
         this.fakeStoreClientAdapter = fakeStoreClientAdapter;
         this.tokenValidator = tokenValidator;
-
+        this.redisTemplate = redisTemplate;
     }
 
     @Override
     public GenericProductdto getProductById(Long id) throws ProductNotFoundException {
 
-
-        FakeStoreProductdto fakeStoreProductdto = fakeStoreClientAdapter.getProductById(id);
-
+        FakeStoreProductdto fakeStoreProductdto = (FakeStoreProductdto) redisTemplate.opsForHash().get("PRODUCTS",id);
+        if(fakeStoreProductdto != null){
+            return ConvertProductdto(fakeStoreProductdto);
+        }
+        fakeStoreProductdto  = fakeStoreClientAdapter.getProductById(id);
+        redisTemplate.opsForHash().put("PRODUCTS",id,fakeStoreProductdto);
         return ConvertProductdto(fakeStoreProductdto);
 
     }
